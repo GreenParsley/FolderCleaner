@@ -1,0 +1,10 @@
+[
+  {
+    "TargetPath": "aaa",
+    "Extension": ".txt"
+  },
+  {
+    "TargetPath": "bbb",
+    "Extension": ".png"
+  }
+]
