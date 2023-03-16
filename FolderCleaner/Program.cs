@@ -1,5 +1,9 @@
 ﻿using FolderCleaner.Enums;
 using FolderCleaner.Services;
+using log4net.Config;
+using log4net.Core;
+using log4net;
+using System.Reflection;
 
 IFileExtensionRepository fileExtensionRepository = new FileExtensionRepository();
 //fileExtensionRepository.GetAll().ToList().ForEach(x => Console.WriteLine($"{x.TargetPath} {x.Extension}"));
@@ -20,10 +24,11 @@ IUserInputValueService userInputValueService = new UserInputValueService(fileExt
 //userInputValueService.GetAllFileName().ToList().ForEach(x => Console.WriteLine(x));
 //userInputValueService.StartTransferringFilesInfo();
 //userInputValueService.EndTransferringFilesInfo();
+
+IFileTransferService fileTransferService = new FileTransferService(fileExtensionRepository, whiteListRepository);
 var boolValue = true;
 while (true)
 {
-	//pobrać wartość od użytkownika i rzutować na enum
 	if (boolValue == true)
 	{
         userInputValueService.CommandList();
@@ -32,8 +37,7 @@ while (true)
 
     var userCommend = Enum.Parse(typeof(CommendsType), Console.ReadLine().ToLower());
 	switch (userCommend)
-	{   // pętla kończy się gdy użytkownik zrobi Run
-		//dla każdego case przypisać instrukcje z userServices
+	{
 		case CommendsType.help:
 		case CommendsType.h:
 			userInputValueService.CommandList();
@@ -66,6 +70,7 @@ while (true)
 
 		case CommendsType.run:
 		case CommendsType.r:
+            fileTransferService.Run();
 			break;
 
         default:

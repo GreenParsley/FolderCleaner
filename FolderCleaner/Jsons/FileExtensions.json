@@ -1,10 +1,10 @@
 [
   {
-    "TargetPath": "aaa",
+    "TargetPath": "C:\\Users\\Ola\\Desktop\\abc",
     "Extension": ".txt"
   },
   {
-    "TargetPath": "bbb",
+    "TargetPath": "C:\\Users\\Ola\\Desktop\\abc",
     "Extension": ".png"
   }
 ]

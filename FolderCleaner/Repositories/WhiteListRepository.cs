@@ -37,4 +37,3 @@ public class WhiteListRepository : IWhiteListRepository
         File.WriteAllText(_fileName, jsonConverted);
     }
 }
-

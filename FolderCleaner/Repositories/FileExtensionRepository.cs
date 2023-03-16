@@ -33,7 +33,11 @@ public class FileExtensionRepository : IFileExtensionRepository
     public void Update(FileExtension fileExtension)
     {
         var fileExtensionList = GetFileExtensionCollection();
-        if (fileExtensionList.Any(x => x.Extension.Equals(fileExtension.Extension)))
+        //warunki że takie samo fileExtension i startWith itd.
+        if (fileExtensionList.Any(x => x.Extension.Equals(fileExtension.Extension) && 
+        x.StartWith.Equals(fileExtension.StartWith) &&
+        x.EndWith.Equals(fileExtension.EndWith) &&
+        x.Constain.Equals(fileExtension.Constain)))
         {
             var updatedFileExtension = fileExtensionList.First(x => x.Extension.Equals(fileExtension.Extension));
             updatedFileExtension.TargetPath = fileExtension.TargetPath;
@@ -44,7 +48,7 @@ public class FileExtensionRepository : IFileExtensionRepository
     private List<FileExtension> GetFileExtensionCollection() 
     {
         string jsonString = File.ReadAllText(_fileName);
-        var fileExtensionList = System.Text.Json.JsonSerializer.Deserialize<List<FileExtension>>(jsonString)!;
+        var fileExtensionList = JsonSerializer.Deserialize<List<FileExtension>>(jsonString)!;
         return fileExtensionList;
     }
 

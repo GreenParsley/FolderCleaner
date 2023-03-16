@@ -8,14 +8,13 @@ public class UserInputValueService : IUserInputValueService
     private IFileExtensionRepository _fileExtensionRepository;
     private IWhiteListRepository _whiteListRepository;
 
-    //konstruktor - musi przyjmować IFileExtensionRepository i IWhiteListRepository
+    //konstruktor
     public UserInputValueService(IFileExtensionRepository fileExtensionRepository, IWhiteListRepository whiteListRepository)
     {
         _fileExtensionRepository = fileExtensionRepository;
         _whiteListRepository = whiteListRepository;
     }
 
-    // 1 metoda = pobierze od użytkownika fileExtension i targetPath - console.ReadLine
     public void AddFileExtensionAndPath()
     {
         var fileExtensionAndPath = GetFileExtensionFromUser();
@@ -23,7 +22,6 @@ public class UserInputValueService : IUserInputValueService
         EndProcessInfo();
     }
 
-    // 1.5 metoda = pobierze od użytkownika nazwe pliku z WhiteList - console.ReadLine
     public void AddFileNames()
     {
         Console.WriteLine("Enter the file names.");
@@ -36,7 +34,6 @@ public class UserInputValueService : IUserInputValueService
         EndProcessInfo();
     }
 
-    // 2 metoda = wypisz wszystkie rozszerzenia jakie aktualnie są
     public void GetAllExtension()
     {
         Console.WriteLine("All extensions:");
@@ -48,7 +45,6 @@ public class UserInputValueService : IUserInputValueService
         EndProcessInfo();
     }
 
-    //2.5 metoda = wypisze wszystkie nazwy plików z WhiteList
     public void GetAllFileName()
     {
         Console.WriteLine("All file names:");
@@ -67,7 +63,6 @@ public class UserInputValueService : IUserInputValueService
         EndProcessInfo();
     }
 
-    // 4 metoda = zwróci użytkownikowi informacje o możliwych komendach (tylko szkielet metody)
     public void CommandList()
     {
         Console.WriteLine($"{CommendsType.help}, {CommendsType.h} - Return commands list");
@@ -86,10 +81,11 @@ public class UserInputValueService : IUserInputValueService
 
     private FileExtension GetFileExtensionFromUser()
     {
-        Console.WriteLine("Enter the file extension.");
-        var fileExtension = Console.ReadLine();
-        Console.WriteLine("Enter the target path.");
-        var targetPath = Console.ReadLine();
-        return new FileExtension(fileExtension, targetPath);
+        //pobrać dodatkowe rzeczy od użytkownika
+        // niech użytkownik wpisuje wszystkie wartości po przecinku, podzielić i przekazać dalej
+        Console.WriteLine("Enter the file extension, target path, start with, end with and contain.");
+        var fileData = Console.ReadLine();
+        var fileDataSplitted = fileData.Split(",").ToList();
+        return new FileExtension(fileDataSplitted[0], fileDataSplitted[1], fileDataSplitted[2], fileDataSplitted[3], fileDataSplitted[4]);
     }
 }
