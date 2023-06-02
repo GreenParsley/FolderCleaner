@@ -1,4 +1,5 @@
 ﻿using FolderCleaner.Models;
+using System.IO.Abstractions;
 using System.Text.Json;
 
 namespace FolderCleaner.Repositories;
@@ -6,10 +7,12 @@ namespace FolderCleaner.Repositories;
 public class WhiteListRepository : IWhiteListRepository
 {
     private string _fileName;
+    private IFileSystem _fileSystem;
 
-    public WhiteListRepository()
+    public WhiteListRepository(IFileSystem fileSystem)
     {
         _fileName = Const.FileWhiteListName;
+        _fileSystem = fileSystem;
     }
 
     public void Add(string newFileName)
@@ -26,7 +29,7 @@ public class WhiteListRepository : IWhiteListRepository
 
     private List<string> GetWhiteListCollection()
     {
-        string jsonString = File.ReadAllText(_fileName);
+        string jsonString = _fileSystem.File.ReadAllText(_fileName);
         var whiteList = JsonSerializer.Deserialize<List<string>>(jsonString)!;
         return whiteList;
     }
@@ -34,6 +37,6 @@ public class WhiteListRepository : IWhiteListRepository
     private void SaveWhiteListCollection(List<string> whiteList)
     {
         var jsonConverted = JsonSerializer.Serialize(whiteList);
-        File.WriteAllText(_fileName, jsonConverted);
+        _fileSystem.File.WriteAllText(_fileName, jsonConverted);
     }
 }

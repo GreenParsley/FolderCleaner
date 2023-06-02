@@ -7,7 +7,7 @@ public class FileExtension
     public string Extension { get; set; }
     public string StartWith { get; set; }
     public string EndWith { get; set; }
-    public string Constain { get; set; }
+    public string Contain { get; set; }
 
     //konstruktor
     public FileExtension(string targetPath, string extension, string startWith, string endWith, string contain)
@@ -17,6 +17,6 @@ public class FileExtension
         Extension = extension;
         StartWith = startWith;
         EndWith = endWith;
-        Constain = contain;
+        Contain = contain;
     }
 }

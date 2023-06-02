@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO.Abstractions;
 
 namespace FolderCleaner.Services;
 
@@ -8,13 +9,17 @@ public class FileTransferService : IFileTransferService
     private IFileExtensionRepository _fileExtensionRepository;
     private IWhiteListRepository _whiteListRepository;
     private string _desktopPath;
+    private IFileSystem _fileSystem;
+    private IConsoleWrapper _consoleWrapper;
 
     //konstruktor
-    public FileTransferService(IFileExtensionRepository fileExtensionRepository, IWhiteListRepository whiteListRepository)
+    public FileTransferService(IFileExtensionRepository fileExtensionRepository, IWhiteListRepository whiteListRepository, IFileSystem fileSystem, IConsoleWrapper consoleWrapper)
     {
         _fileExtensionRepository = fileExtensionRepository;
         _whiteListRepository = whiteListRepository;
         _desktopPath = Const.DesktopPath;
+        _fileSystem = fileSystem;
+        _consoleWrapper = consoleWrapper;
     }
 
     public void Run()
@@ -25,16 +30,16 @@ public class FileTransferService : IFileTransferService
         TransferFiles(allFileExtensionAndPath, filesToTransfer);
     }
 
-    private String[] GetFilesFromDesktop()
+    private string[] GetFilesFromDesktop()
     {
-        var filesFromDesktop = Directory.GetFiles(_desktopPath);
+        var filesFromDesktop = _fileSystem.Directory.GetFiles(_desktopPath);
         return filesFromDesktop;
     }
 
     private List<string> FileNamesToTransfer(List<string> whiteListRepository)
     {
         var filesFromDesktop = GetFilesFromDesktop();
-        var filesToTransfer = filesFromDesktop.Except(whiteListRepository).ToList();
+        var filesToTransfer = filesFromDesktop.Where(x => !whiteListRepository.Any(y => x.Contains(y))).ToList();
         return filesToTransfer;
     }
 
@@ -42,21 +47,26 @@ public class FileTransferService : IFileTransferService
     {
         foreach (var file in filesToTransfer)
         {
-            var extension = Path.GetExtension(file);
-            //dodać trzy kolejne properties dodane do warunków poniże
-            var fileExtension = _fileExtensionRepository.GetAll().FirstOrDefault(x => x.Extension.Equals(extension));
+            var extension = _fileSystem.Path.GetExtension(file);
+            var fileName = _fileSystem.Path.GetFileNameWithoutExtension(file);
+            var fileExtension = fileExtensionRepository.FirstOrDefault(x => x.Extension.Equals(extension) && 
+            fileName.StartsWith(x.StartWith) &&
+            fileName.EndsWith(x.EndWith) &&
+            fileName.Contains(x.Contain));
             if (fileExtension != null)
             {
-                if (Directory.Exists(fileExtension.TargetPath) == false)
+                if (_fileSystem.Directory.Exists(fileExtension.TargetPath) == false)
                 {
-                    Directory.CreateDirectory(fileExtension.TargetPath);
+                    _fileSystem.Directory.CreateDirectory(fileExtension.TargetPath);
                 }
-                File.Move(file, Path.Combine(fileExtension.TargetPath, Path.GetFileName(file)));
-                Console.WriteLine("Transfer complited");
+                var test = _fileSystem.Path.GetFileName(file);
+                var test2 = _fileSystem.Path.Combine(fileExtension.TargetPath, _fileSystem.Path.GetFileName(file));
+                _fileSystem.File.Move(file, _fileSystem.Path.Combine(fileExtension.TargetPath, _fileSystem.Path.GetFileName(file)));
+                _consoleWrapper.WriteLine("Transfer complited");
             }
             else
             {
-                Console.WriteLine("There is no such extension in the list.");
+                _consoleWrapper.WriteLine("There is no such extension in the list.");
             }
         }
     }

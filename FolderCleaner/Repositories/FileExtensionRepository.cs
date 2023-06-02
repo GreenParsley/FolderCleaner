@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using FolderCleaner.Models;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace FolderCleaner.Repositories;
 
@@ -10,12 +11,14 @@ public class FileExtensionRepository : IFileExtensionRepository
 {
     //property
     private string _fileName;
+    private IFileSystem _fileSystem;
 
 
     //konstruktor
-    public FileExtensionRepository()
+    public FileExtensionRepository(IFileSystem fileSystem)
     {
         _fileName = Const.FileExtensionName;
+        _fileSystem = fileSystem;
     }
 
     public void Add(FileExtension fileExtension)
@@ -33,11 +36,10 @@ public class FileExtensionRepository : IFileExtensionRepository
     public void Update(FileExtension fileExtension)
     {
         var fileExtensionList = GetFileExtensionCollection();
-        //warunki że takie samo fileExtension i startWith itd.
         if (fileExtensionList.Any(x => x.Extension.Equals(fileExtension.Extension) && 
         x.StartWith.Equals(fileExtension.StartWith) &&
         x.EndWith.Equals(fileExtension.EndWith) &&
-        x.Constain.Equals(fileExtension.Constain)))
+        x.Contain.Equals(fileExtension.Contain)))
         {
             var updatedFileExtension = fileExtensionList.First(x => x.Extension.Equals(fileExtension.Extension));
             updatedFileExtension.TargetPath = fileExtension.TargetPath;
@@ -47,7 +49,7 @@ public class FileExtensionRepository : IFileExtensionRepository
 
     private List<FileExtension> GetFileExtensionCollection() 
     {
-        string jsonString = File.ReadAllText(_fileName);
+        string jsonString = _fileSystem.File.ReadAllText(_fileName);
         var fileExtensionList = JsonSerializer.Deserialize<List<FileExtension>>(jsonString)!;
         return fileExtensionList;
     }
@@ -55,6 +57,6 @@ public class FileExtensionRepository : IFileExtensionRepository
     private void SaveFileExtensionCollection(List<FileExtension> fileExtensionList)
     {
         var jsonConverted = JsonSerializer.Serialize(fileExtensionList);
-        File.WriteAllText(_fileName, jsonConverted);
+        _fileSystem.File.WriteAllText(_fileName, jsonConverted);
     }
 }

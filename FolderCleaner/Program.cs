@@ -1,11 +1,16 @@
 ﻿using FolderCleaner.Enums;
 using FolderCleaner.Services;
-using log4net.Config;
-using log4net.Core;
-using log4net;
-using System.Reflection;
+using FolderCleaner.Wrapper;
+using Microsoft.Extensions.Logging;
+using System.IO.Abstractions;
+using System.Runtime.CompilerServices;
 
-IFileExtensionRepository fileExtensionRepository = new FileExtensionRepository();
+var loggerFactory = CreateLogger();
+ILogger logger = loggerFactory.CreateLogger<Program>();
+
+IFileSystem fileSystem = new FileSystem();
+IConsoleWrapper consoleWrapper = new ConsoleWrapper();
+IFileExtensionRepository fileExtensionRepository = new FileExtensionRepository(fileSystem);
 //fileExtensionRepository.GetAll().ToList().ForEach(x => Console.WriteLine($"{x.TargetPath} {x.Extension}"));
 //fileExtensionRepository.Add(new FileExtension("ccc", ".jpg"));
 //fileExtensionRepository.GetAll().ToList().ForEach(x => Console.WriteLine($"{x.TargetPath} {x.Extension}"));
@@ -13,19 +18,19 @@ IFileExtensionRepository fileExtensionRepository = new FileExtensionRepository()
 //fileExtensionRepository.Update(new FileExtension("eee", ".csv"));
 //fileExtensionRepository.GetAll().ToList().ForEach(x => Console.WriteLine($"{x.TargetPath} {x.Extension}"));
 
-IWhiteListRepository whiteListRepository = new WhiteListRepository();
+IWhiteListRepository whiteListRepository = new WhiteListRepository(fileSystem);
 //whiteListRepository.GetAll().ToList().ForEach(x => Console.WriteLine(x));
 //whiteListRepository.Add("kiwi");
 //whiteListRepository.GetAll().ToList().ForEach(x => Console.WriteLine(x));
 
-IUserInputValueService userInputValueService = new UserInputValueService(fileExtensionRepository, whiteListRepository);
+IUserInputValueService userInputValueService = new UserInputValueService(fileExtensionRepository, whiteListRepository, consoleWrapper);
 //userInputValueService.GetFileExtensionAndPath();
 //userInputValueService.GetFileName();
 //userInputValueService.GetAllFileName().ToList().ForEach(x => Console.WriteLine(x));
 //userInputValueService.StartTransferringFilesInfo();
 //userInputValueService.EndTransferringFilesInfo();
 
-IFileTransferService fileTransferService = new FileTransferService(fileExtensionRepository, whiteListRepository);
+IFileTransferService fileTransferService = new FileTransferService(fileExtensionRepository, whiteListRepository, fileSystem, consoleWrapper);
 var boolValue = true;
 while (true)
 {
@@ -76,4 +81,16 @@ while (true)
         default:
 			break;
 	}
+}
+
+ILoggerFactory CreateLogger()
+{
+    return LoggerFactory.Create(builder =>
+    {
+        builder
+            .AddFilter("Microsoft", LogLevel.Warning)
+            .AddFilter("System", LogLevel.Warning)
+            .AddFilter("NonHostConsoleApp.Program", LogLevel.Debug)
+            .AddConsole();
+    });
 }

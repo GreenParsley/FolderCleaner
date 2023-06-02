@@ -1,10 +1,16 @@
 [
   {
     "TargetPath": "C:\\Users\\Ola\\Desktop\\abc",
-    "Extension": ".txt"
+    "Extension": ".txt",
+    "StartWith": "ab",
+    "EndWith": "",
+    "Contain": ""
   },
   {
     "TargetPath": "C:\\Users\\Ola\\Desktop\\abc",
-    "Extension": ".png"
+    "Extension": ".png",
+    "StartWith": "ab",
+    "EndWith": "",
+    "Contain": ""
   }
 ]
